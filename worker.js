@@ -72,6 +72,10 @@ const CONFIG = {
     googleNLP: {
       url: 'https://language.googleapis.com/v1/documents:analyzeSentiment',
       description: 'Google Cloud Natural Language - Free 500 units/month'
+    },
+    customLLM: {
+      url: 'http://129.226.89.157:20128/v1/chat/completions',
+      description: 'Custom OpenAI-compatible LLM API'
     }
   }
 };
@@ -567,6 +571,53 @@ export default {
     }
   },
 
+  async validateWithCustomLLM(content, domain) {
+    try {
+      // Check if custom LLM URL is available in environment variables
+      const customLLMUrl = typeof CUSTOM_LLM_URL !== 'undefined' ? CUSTOM_LLM_URL : CONFIG.AI_APIS.customLLM.url;
+      
+      // Prepare content for analysis (truncate if too long)
+      const text = content.substring(0, 2000);
+      
+      const response = await fetch(customLLMUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer no-key-needed' // Custom LLM might not need auth
+        },
+        body: JSON.stringify({
+          model: 'default', // You can change this to match your LLM model name
+          messages: [
+            {
+              role: 'system',
+              content: 'Analyze the following website content and determine if it is a gambling website. Respond with only "GAMBLING" if it is a gambling website, or "NOT_GAMBLING" if it is not.'
+            },
+            {
+              role: 'user',
+              content: `Website: ${domain}\nContent: ${text}`
+            }
+          ],
+          max_tokens: 10,
+          temperature: 0.1
+        })
+      });
+      
+      if (!response.ok) {
+        console.error('Custom LLM API error:', response.status);
+        return null;
+      }
+      
+      const result = await response.json();
+      const answer = result.choices[0].message.content.trim().toUpperCase();
+      
+      return answer === 'GAMBLING';
+      
+    } catch (error) {
+      console.error('Custom LLM validation error:', error);
+      return null;
+    }
+  },
+
   // Main AI validation method
   async validateWithAI(content, domain) {
     // Try Hugging Face first (free and reliable)
@@ -585,6 +636,12 @@ export default {
     const googleNLPResult = await this.validateWithGoogleNLP(content, domain);
     if (googleNLPResult !== null) {
       return googleNLPResult;
+    }
+    
+    // Try custom OpenAI-compatible LLM
+    const customLLMResult = await this.validateWithCustomLLM(content, domain);
+    if (customLLMResult !== null) {
+      return customLLMResult;
     }
     
     // If all AI APIs fail, return null (use fallback validation)

@@ -124,7 +124,7 @@ OPENAI_API_KEY = "your-openai-api-key"
 GOOGLE_NLP_API_KEY = "your-google-nlp-api-key"
 
 # Custom OpenAI-compatible LLM API (opsional)
-CUSTOM_LLM_URL = "http://129.226.89.157:20128/v1/chat/completions"
+CUSTOM_LLM_URL = "http://YOUR_LLM/v1/chat/completions"
 CUSTOM_LLM_API_KEY = "your-custom-llm-api-key"
 CUSTOM_LLM_MODEL = "your-model-name"
 ```

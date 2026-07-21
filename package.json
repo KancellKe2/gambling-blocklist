@@ -1,0 +1,23 @@
+{
+  "name": "gambling-blocklist-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for generating gambling website blocklists",
+  "main": "worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "cloudflare-worker",
+    "gambling",
+    "blocklist",
+    "adguard",
+    "adblock"
+  ],
+  "author": "KancellKe2",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

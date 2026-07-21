@@ -1,0 +1,28 @@
+name = "gambling-blocklist-worker"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# KV Namespace for storing blocklists
+[[kv_namespaces]]
+binding = "BLOCKLIST_KV"
+id = "YOUR_KV_NAMESPACE_ID"
+
+# Scheduled trigger - run every 24 hours
+[triggers]
+crons = ["0 0 * * *"]
+
+# Environment variables (optional)
+[vars]
+# Add your API keys here if you have them
+# GOOGLE_API_KEY = "your-google-api-key"
+# GOOGLE_CX = "your-google-custom-search-engine-id"
+# BING_API_KEY = "your-bing-api-key"
+
+# Production environment
+[env.production]
+name = "gambling-blocklist-production"
+
+# Development environment
+[env.dev]
+name = "gambling-blocklist-dev"

@@ -57,6 +57,22 @@ const CONFIG = {
         mkt: 'id-ID'
       }
     }
+  },
+  
+  // AI APIs for validation (free options)
+  AI_APIS: {
+    huggingface: {
+      url: 'https://api-inference.huggingface.co/models/facebook/bart-large-mnli',
+      description: 'Hugging Face Inference API - 100% Free'
+    },
+    openai: {
+      url: 'https://api.openai.com/v1/chat/completions',
+      description: 'OpenAI API - Free $5 credit'
+    },
+    googleNLP: {
+      url: 'https://language.googleapis.com/v1/documents:analyzeSentiment',
+      description: 'Google Cloud Natural Language - Free 500 units/month'
+    }
   }
 };
 
@@ -343,6 +359,13 @@ export default {
         }
       }
       
+      // Method 5: AI validation (if API keys available)
+      const aiResult = await this.validateWithAI(content, domain);
+      if (aiResult !== null) {
+        return aiResult;
+      }
+      
+      // If no AI validation available, use fallback (return false)
       return false;
       
     } catch (error) {
@@ -377,6 +400,195 @@ export default {
     ];
     
     return gamblingPatterns.some(pattern => pattern.test(domain));
+  },
+
+  // AI Validation Methods (Free APIs)
+  async validateWithHuggingFace(content, domain) {
+    try {
+      const apiKey = typeof HUGGING_FACE_API_KEY !== 'undefined' ? HUGGING_FACE_API_KEY : null;
+      if (!apiKey) {
+        console.log('Hugging Face API key not available, skipping AI validation');
+        return null;
+      }
+      
+      // Prepare text for classification (truncate if too long)
+      const text = content.substring(0, 1000);
+      
+      const response = await fetch(CONFIG.AI_APIS.huggingface.url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          inputs: text,
+          parameters: {
+            candidate_labels: [
+              'gambling website',
+              'casino website', 
+              'betting website',
+              'poker website',
+              'slot website',
+              'normal website'
+            ]
+          }
+        })
+      });
+      
+      if (!response.ok) {
+        console.error('Hugging Face API error:', response.status);
+        return null;
+      }
+      
+      const result = await response.json();
+      
+      // Check if gambling-related labels have high scores
+      const gamblingLabels = ['gambling website', 'casino website', 'betting website', 'poker website', 'slot website'];
+      const gamblingScore = result.labels
+        .filter((label, index) => gamblingLabels.includes(label))
+        .reduce((sum, label) => sum + result.scores[result.labels.indexOf(label)], 0);
+      
+      return gamblingScore > 0.7; // 70% confidence threshold
+      
+    } catch (error) {
+      console.error('Hugging Face validation error:', error);
+      return null;
+    }
+  },
+
+  async validateWithOpenAI(content, domain) {
+    try {
+      const apiKey = typeof OPENAI_API_KEY !== 'undefined' ? OPENAI_API_KEY : null;
+      if (!apiKey) {
+        console.log('OpenAI API key not available, skipping AI validation');
+        return null;
+      }
+      
+      // Prepare content for analysis (truncate if too long)
+      const text = content.substring(0, 2000);
+      
+      const response = await fetch(CONFIG.AI_APIS.openai.url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'system',
+              content: 'Analyze the following website content and determine if it is a gambling website. Respond with only "GAMBLING" if it is a gambling website, or "NOT_GAMBLING" if it is not.'
+            },
+            {
+              role: 'user',
+              content: `Website: ${domain}\nContent: ${text}`
+            }
+          ],
+          max_tokens: 10,
+          temperature: 0.1
+        })
+      });
+      
+      if (!response.ok) {
+        console.error('OpenAI API error:', response.status);
+        return null;
+      }
+      
+      const result = await response.json();
+      const answer = result.choices[0].message.content.trim().toUpperCase();
+      
+      return answer === 'GAMBLING';
+      
+    } catch (error) {
+      console.error('OpenAI validation error:', error);
+      return null;
+    }
+  },
+
+  async validateWithGoogleNLP(content, domain) {
+    try {
+      const apiKey = typeof GOOGLE_NLP_API_KEY !== 'undefined' ? GOOGLE_NLP_API_KEY : null;
+      if (!apiKey) {
+        console.log('Google NLP API key not available, skipping AI validation');
+        return null;
+      }
+      
+      // Prepare content for analysis
+      const text = content.substring(0, 1000);
+      
+      const url = `${CONFIG.AI_APIS.googleNLP.url}?key=${apiKey}`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          document: {
+            type: 'PLAIN_TEXT',
+            content: text
+          },
+          encodingType: 'UTF8'
+        })
+      });
+      
+      if (!response.ok) {
+        console.error('Google NLP API error:', response.status);
+        return null;
+      }
+      
+      const result = await response.json();
+      
+      // Analyze sentiment and content for gambling indicators
+      const sentiment = result.documentSentiment;
+      const sentences = result.sentences || [];
+      
+      // Check for gambling-related keywords in sentences
+      const gamblingKeywords = ['judi', 'casino', 'poker', 'slot', 'betting', 'togel', 'jackpot', 'gambling'];
+      let gamblingFound = false;
+      
+      for (const sentence of sentences) {
+        const text = sentence.text.content.toLowerCase();
+        for (const keyword of gamblingKeywords) {
+          if (text.includes(keyword)) {
+            gamblingFound = true;
+            break;
+          }
+        }
+        if (gamblingFound) break;
+      }
+      
+      return gamblingFound;
+      
+    } catch (error) {
+      console.error('Google NLP validation error:', error);
+      return null;
+    }
+  },
+
+  // Main AI validation method
+  async validateWithAI(content, domain) {
+    // Try Hugging Face first (free and reliable)
+    const huggingFaceResult = await this.validateWithHuggingFace(content, domain);
+    if (huggingFaceResult !== null) {
+      return huggingFaceResult;
+    }
+    
+    // Try OpenAI if Hugging Face fails
+    const openAIResult = await this.validateWithOpenAI(content, domain);
+    if (openAIResult !== null) {
+      return openAIResult;
+    }
+    
+    // Try Google NLP as last resort
+    const googleNLPResult = await this.validateWithGoogleNLP(content, domain);
+    if (googleNLPResult !== null) {
+      return googleNLPResult;
+    }
+    
+    // If all AI APIs fail, return null (use fallback validation)
+    return null;
   },
 
   generateBlocklist(validatedSites) {

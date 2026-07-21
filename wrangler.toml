@@ -14,10 +14,15 @@ crons = ["0 0 * * *"]
 
 # Environment variables (optional)
 [vars]
-# Add your API keys here if you have them
+# Search API keys (optional)
 # GOOGLE_API_KEY = "your-google-api-key"
 # GOOGLE_CX = "your-google-custom-search-engine-id"
 # BING_API_KEY = "your-bing-api-key"
+
+# AI API keys (optional - free APIs)
+# HUGGING_FACE_API_KEY = "your-hugging-face-api-key"
+# OPENAI_API_KEY = "your-openai-api-key"
+# GOOGLE_NLP_API_KEY = "your-google-nlp-api-key"
 
 # Production environment
 [env.production]

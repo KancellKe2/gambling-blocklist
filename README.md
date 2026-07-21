@@ -6,7 +6,7 @@ Cloudflare Worker yang menghasilkan daftar blokir untuk website judi (gambling) 
 
 - 🔍 Pencarian otomatis website judi menggunakan berbagai keyword
 - ✅ Validasi otomatis menggunakan 5 metode berbeda
-- 🤖 AI validation dengan API gratis (Hugging Face, OpenAI, Google NLP)
+- 🤖 AI validation dengan custom LLM sebagai prioritas utama (OpenAI-compatible)
 - 📋 Menghasilkan blocklist dalam format AdGuard/AdBlock
 - ⏰ Dapat dijadwalkan untuk scan otomatis setiap 24 jam
 - 🌐 Mendukung multiple search engines (Google, Bing)
@@ -199,8 +199,8 @@ Pastikan Anda sudah membuat KV namespace dan mengupdate ID di `wrangler.toml`.
 3. Trigger scan manual melalui endpoint `/scan`
 
 ### AI Validation tidak bekerja
-1. Pastikan API key sudah benar di `wrangler.toml`
-2. Cek batas kuota API (Hugging Face gratis, OpenAI $5 credit)
+1. Pastikan custom LLM URL sudah benar di `wrangler.toml`
+2. Prioritas validation: Custom LLM → Hugging Face → OpenAI → Google NLP
 3. Worker akan tetap berfungsi tanpa AI validation (menggunakan metode fallback)
 
 ### Rate limiting

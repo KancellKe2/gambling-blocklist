@@ -620,7 +620,13 @@ export default {
 
   // Main AI validation method
   async validateWithAI(content, domain) {
-    // Try Hugging Face first (free and reliable)
+    // Try custom OpenAI-compatible LLM first (highest priority)
+    const customLLMResult = await this.validateWithCustomLLM(content, domain);
+    if (customLLMResult !== null) {
+      return customLLMResult;
+    }
+    
+    // Try Hugging Face if custom LLM fails
     const huggingFaceResult = await this.validateWithHuggingFace(content, domain);
     if (huggingFaceResult !== null) {
       return huggingFaceResult;
@@ -636,12 +642,6 @@ export default {
     const googleNLPResult = await this.validateWithGoogleNLP(content, domain);
     if (googleNLPResult !== null) {
       return googleNLPResult;
-    }
-    
-    // Try custom OpenAI-compatible LLM
-    const customLLMResult = await this.validateWithCustomLLM(content, domain);
-    if (customLLMResult !== null) {
-      return customLLMResult;
     }
     
     // If all AI APIs fail, return null (use fallback validation)

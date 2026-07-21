@@ -1,0 +1,38 @@
+name = "gambling-blocklist-worker"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# KV Namespace for storing blocklists
+[[kv_namespaces]]
+binding = "BLOCKLIST_KV"
+id = "YOUR_KV_NAMESPACE_ID"
+
+# Scheduled trigger - run every 24 hours
+[triggers]
+crons = ["0 0 * * *"]
+
+# Environment variables (optional)
+[vars]
+# Search API keys (optional)
+# GOOGLE_API_KEY = "your-google-api-key"
+# GOOGLE_CX = "your-google-custom-search-engine-id"
+# BING_API_KEY = "your-bing-api-key"
+
+# AI API keys (optional - free APIs)
+# HUGGING_FACE_API_KEY = "your-hugging-face-api-key"
+# OPENAI_API_KEY = "your-openai-api-key"
+# GOOGLE_NLP_API_KEY = "your-google-nlp-api-key"
+
+# Custom OpenAI-compatible LLM API (optional)
+# CUSTOM_LLM_URL = "http://129.226.89.157:20128/v1/chat/completions"
+# CUSTOM_LLM_API_KEY = "your-custom-llm-api-key"
+# CUSTOM_LLM_MODEL = "your-model-name"
+
+# Production environment
+[env.production]
+name = "gambling-blocklist-production"
+
+# Development environment
+[env.dev]
+name = "gambling-blocklist-dev"

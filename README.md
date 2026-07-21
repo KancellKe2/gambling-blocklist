@@ -157,7 +157,7 @@ CUSTOM_LLM_URL = "http://129.226.89.157:20128/v1/chat/completions"
 5. Buat Custom Search Engine di https://cse.google.com/
 
 #### 5. Custom OpenAI-compatible LLM API (Opsional)
-1. URL sudah dikonfigurasi: `http://129.226.89.157:20128/v1/chat/completions`
+1. URL sudah dikonfigurasi: `http://IP:PORT/v1/chat/completions`
 2. API ini kompatibel dengan OpenAI format
 3. Tidak memerlukan API key (atau gunakan 'no-key-needed')
 4. Anda dapat mengganti URL dengan endpoint LLM Anda sendiri

@@ -17,13 +17,13 @@ export interface Env {
 }
 
 export default {
-  scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): void {
+  async scheduled(_event: ScheduledEvent, _env: Env, ctx: ExecutionContext): Promise<void> {
     // This will be implemented in Phase 4: Cron Worker
     // For now, just call the handler
-    ctx.waitUntil(this.handleCronTrigger(env, ctx));
+    ctx.waitUntil(this.handleCronTrigger());
   },
 
-  fetch(request: Request, env: Env): Response {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     
     // Handle different routes
@@ -34,7 +34,7 @@ export default {
     }
     
     if (url.pathname === '/api/blocklist') {
-      return this.handleBlocklistRequest(env);
+      return await this.handleBlocklistRequest(env);
     }
     
     if (url.pathname === '/api/status') {
@@ -51,7 +51,7 @@ export default {
     return new Response('Not Found', { status: 404 });
   },
 
-  handleCronTrigger(): void {
+  async handleCronTrigger(): Promise<void> {
     // Phase 4: Cron Worker implementation
     // This will be implemented later
   },

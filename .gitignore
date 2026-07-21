@@ -1,0 +1,270 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.wrangler/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+*.lcov
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+test-results/
+playwright-report/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Wrangler
+.wrangler/
+.dev.vars
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm dependencies
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Optional REPL history
+.node_repl_history
+
+# Optional npm cache
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Local temp files
+*.local
+
+# Docker
+.docker/
+
+# Kubernetes
+kubeconfig
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Pulumi
+.pulumi/
+Pulumi.*.yaml
+
+# Serverless
+.serverless/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Amplify
+.amplify/
+amplifyconfiguration.json
+amplifyconfiguration.dart
+build/
+amplify-backend-config.json
+
+# AWS
+.aws/
+.aws-sam/
+samconfig.toml
+
+# GCP
+.gcp/
+app.yaml
+service.yaml
+
+# Azure
+.azure/
+azure-functions/
+host.json
+local.settings.json
+
+# Vercel
+.vercel/
+.env.vercel.local
+
+# Netlify
+.netlify/
+.env.netlify.local
+
+# Supabase
+.supabase/
+.env.supabase.local
+
+# Hasura
+.hasura/
+.env.hasura.local
+
+# Prisma
+prisma/.env
+
+# Hasura
+hasura/
+.env.hasura.local
+
+# Strapi
+strapi/
+.env.strapi.local
+
+# Sanity
+sanity/
+.env.sanity.local
+
+# Contentful
+contentful/
+.env.contentful.local
+
+# Airtable
+airtable/
+.env.airtable.local
+
+# Notion
+notion/
+.env.notion.local
+
+# Linear
+linear/
+.env.linear.local
+
+# Airtable
+airtable/
+.env.airtable.local
+
+# Coda
+coda/
+.env.coda.local
+
+# Monday
+monday/
+.env.monday.local
+
+# Asana
+asana/
+.env.asana.local
+
+# Trello
+trello/
+.env.trello.local
+
+# Clickup
+clickup/
+.env.clickup.local
+
+# Jira
+jira/
+.env.jira.local
+
+# GitLab
+gitlab/
+.env.gitlab.local
+
+# Bitbucket
+bitbucket/
+.env.bitbucket.local
+
+# Azure DevOps
+azure-devops/
+.env.azure-devops.local
+
+# GitHub
+github/
+.env.github.local
+
+# GitLab
+gitlab/
+.env.gitlab.local
+
+# Bitbucket
+bitbucket/
+.env.bitbucket.local
+
+# Azure DevOps
+azure-devops/
+.env.azure-devops.local
+
+# GitHub
+github/
+.env.github.local
+
+# GitLab
+gitlab/
+.env.gitlab.local
+
+# Bitbucket
+bitbucket/
+.env.bitbucket.local
+
+# Azure DevOps
+azure-devops/
+.env.azure-devops.local
+
+# GitHub
+github/
+.env.github.local

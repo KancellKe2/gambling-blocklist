@@ -12,12 +12,19 @@ import type {
 
 export const defaultCrawlerConfig: CrawlerConfig = {
   maxConcurrentRequests: parseInt(process.env.MAX_CONCURRENT_REQUESTS || '10'),
+  maxConcurrency: parseInt(process.env.MAX_CONCURRENCY || '5'),
   requestTimeout: parseInt(process.env.REQUEST_TIMEOUT || '30000'),
+  timeout: parseInt(process.env.TIMEOUT || '30000'),
   rateLimitDelay: parseInt(process.env.RATE_LIMIT_DELAY || '1000'),
+  rateLimit: parseInt(process.env.RATE_LIMIT || '1000'),
+  retries: parseInt(process.env.RETRIES || '3'),
+  retryDelay: parseInt(process.env.RETRY_DELAY || '1000'),
   userAgent: process.env.USER_AGENT || 'GamblingBlocklistBot/1.0',
   respectRobotsTxt: true,
   maxDepth: 3,
   maxPagesPerDomain: 50,
+  followRedirects: true,
+  maxRedirects: 5,
 };
 
 export const defaultAIConfig: AIConfig = {
@@ -26,19 +33,30 @@ export const defaultAIConfig: AIConfig = {
   maxTokens: parseInt(process.env.AI_MAX_TOKENS || '1000'),
   apiKey: process.env.OMNIROUTE_API_KEY || '',
   endpoint: process.env.OMNIROUTE_ENDPOINT || 'https://api.omniroute.com/v1',
+  timeout: parseInt(process.env.AI_TIMEOUT || '30000'),
 };
 
 export const defaultScoringConfig: ScoringConfig = {
   minConfidenceThreshold: parseFloat(process.env.MIN_CONFIDENCE_THRESHOLD || '0.7'),
   highConfidenceThreshold: parseFloat(process.env.HIGH_CONFIDENCE_THRESHOLD || '0.9'),
   weights: {
-    aiScore: 0.4,
-    keywordScore: 0.15,
-    linkScore: 0.1,
+    ai: 0.4,
+    keyword: 0.2,
+    link: 0.15,
     domainReputation: 0.1,
-    pageSimilarity: 0.1,
-    historicalObservation: 0.1,
+    pageSimilarity: 0.05,
+    historical: 0.05,
+    semantic: 0.05,
+    aiScore: 0.4,
+    keywordScore: 0.2,
+    linkScore: 0.15,
+    historicalObservation: 0.05,
     semanticSimilarity: 0.05,
+  },
+  thresholds: {
+    high: 0.8,
+    medium: 0.5,
+    low: 0.3,
   },
 };
 

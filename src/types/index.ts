@@ -102,12 +102,19 @@ export interface BlocklistFormats {
 
 export interface CrawlerConfig {
   maxConcurrentRequests: number;
+  maxConcurrency: number;
   requestTimeout: number;
+  timeout: number;
   rateLimitDelay: number;
+  rateLimit: number;
+  retries: number;
+  retryDelay: number;
   userAgent: string;
   respectRobotsTxt: boolean;
   maxDepth: number;
   maxPagesPerDomain: number;
+  followRedirects: boolean;
+  maxRedirects: number;
 }
 
 export interface AIConfig {
@@ -116,20 +123,31 @@ export interface AIConfig {
   maxTokens: number;
   apiKey: string;
   endpoint: string;
+  timeout: number;
 }
 
 export interface ScoringConfig {
   minConfidenceThreshold: number;
   highConfidenceThreshold: number;
   weights: ScoringWeights;
+  thresholds: {
+    high: number;
+    medium: number;
+    low: number;
+  };
 }
 
 export interface ScoringWeights {
+  ai: number;
+  keyword: number;
+  link: number;
+  domainReputation: number;
+  pageSimilarity: number;
+  historical: number;
+  semantic: number;
   aiScore: number;
   keywordScore: number;
   linkScore: number;
-  domainReputation: number;
-  pageSimilarity: number;
   historicalObservation: number;
   semanticSimilarity: number;
 }

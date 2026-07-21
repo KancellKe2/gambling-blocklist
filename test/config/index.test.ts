@@ -43,25 +43,25 @@ describe('Configuration', () => {
     it('should have correct default values', () => {
       expect(defaultScoringConfig.minConfidenceThreshold).toBe(0.7);
       expect(defaultScoringConfig.highConfidenceThreshold).toBe(0.9);
-      expect(defaultScoringConfig.weights.aiScore).toBe(0.4);
-      expect(defaultScoringConfig.weights.keywordScore).toBe(0.15);
-      expect(defaultScoringConfig.weights.linkScore).toBe(0.1);
+      expect(defaultScoringConfig.weights.ai).toBe(0.4);
+      expect(defaultScoringConfig.weights.keyword).toBe(0.2);
+      expect(defaultScoringConfig.weights.link).toBe(0.15);
       expect(defaultScoringConfig.weights.domainReputation).toBe(0.1);
-      expect(defaultScoringConfig.weights.pageSimilarity).toBe(0.1);
-      expect(defaultScoringConfig.weights.historicalObservation).toBe(0.1);
-      expect(defaultScoringConfig.weights.semanticSimilarity).toBe(0.05);
+      expect(defaultScoringConfig.weights.pageSimilarity).toBe(0.05);
+      expect(defaultScoringConfig.weights.historical).toBe(0.05);
+      expect(defaultScoringConfig.weights.semantic).toBe(0.05);
     });
 
     it('should have weights that sum to 1', () => {
       const weights = defaultScoringConfig.weights;
       const sum = 
-        weights.aiScore +
-        weights.keywordScore +
-        weights.linkScore +
+        weights.ai +
+        weights.keyword +
+        weights.link +
         weights.domainReputation +
         weights.pageSimilarity +
-        weights.historicalObservation +
-        weights.semanticSimilarity;
+        weights.historical +
+        weights.semantic;
       
       expect(sum).toBeCloseTo(1.0);
     });

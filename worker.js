@@ -75,7 +75,9 @@ const CONFIG = {
     },
     customLLM: {
       url: 'http://129.226.89.157:20128/v1/chat/completions',
-      description: 'Custom OpenAI-compatible LLM API'
+      description: 'Custom OpenAI-compatible LLM API',
+      defaultModel: 'default',
+      defaultApiKey: 'no-key-needed'
     }
   }
 };
@@ -575,6 +577,8 @@ export default {
     try {
       // Check if custom LLM URL is available in environment variables
       const customLLMUrl = typeof CUSTOM_LLM_URL !== 'undefined' ? CUSTOM_LLM_URL : CONFIG.AI_APIS.customLLM.url;
+      const customLLMApiKey = typeof CUSTOM_LLM_API_KEY !== 'undefined' ? CUSTOM_LLM_API_KEY : CONFIG.AI_APIS.customLLM.defaultApiKey;
+      const customLLMModel = typeof CUSTOM_LLM_MODEL !== 'undefined' ? CUSTOM_LLM_MODEL : CONFIG.AI_APIS.customLLM.defaultModel;
       
       // Prepare content for analysis (truncate if too long)
       const text = content.substring(0, 2000);
@@ -583,10 +587,10 @@ export default {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer no-key-needed' // Custom LLM might not need auth
+          'Authorization': `Bearer ${customLLMApiKey}`
         },
         body: JSON.stringify({
-          model: 'default', // You can change this to match your LLM model name
+          model: customLLMModel,
           messages: [
             {
               role: 'system',

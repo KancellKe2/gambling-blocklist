@@ -125,6 +125,8 @@ GOOGLE_NLP_API_KEY = "your-google-nlp-api-key"
 
 # Custom OpenAI-compatible LLM API (opsional)
 CUSTOM_LLM_URL = "http://129.226.89.157:20128/v1/chat/completions"
+CUSTOM_LLM_API_KEY = "your-custom-llm-api-key"
+CUSTOM_LLM_MODEL = "your-model-name"
 ```
 
 ### Cara Mendapatkan API Keys Gratis
@@ -159,8 +161,14 @@ CUSTOM_LLM_URL = "http://129.226.89.157:20128/v1/chat/completions"
 #### 5. Custom OpenAI-compatible LLM API (Opsional)
 1. URL sudah dikonfigurasi: `http://IP:PORT/v1/chat/completions`
 2. API ini kompatibel dengan OpenAI format
-3. Tidak memerlukan API key (atau gunakan 'no-key-needed')
+3. Memerlukan API key dan model name (atau gunakan default 'no-key-needed' dan 'default')
 4. Anda dapat mengganti URL dengan endpoint LLM Anda sendiri
+5. Konfigurasi di `wrangler.toml`:
+   ```toml
+   CUSTOM_LLM_URL = "your-llm-url"
+   CUSTOM_LLM_API_KEY = "your-api-key"
+   CUSTOM_LLM_MODEL = "your-model-name"
+   ```
 
 ### Keyword Pencarian
 
@@ -199,7 +207,7 @@ Pastikan Anda sudah membuat KV namespace dan mengupdate ID di `wrangler.toml`.
 3. Trigger scan manual melalui endpoint `/scan`
 
 ### AI Validation tidak bekerja
-1. Pastikan custom LLM URL sudah benar di `wrangler.toml`
+1. Pastikan custom LLM URL, API key, dan model name sudah benar di `wrangler.toml`
 2. Prioritas validation: Custom LLM → Hugging Face → OpenAI → Google NLP
 3. Worker akan tetap berfungsi tanpa AI validation (menggunakan metode fallback)
 

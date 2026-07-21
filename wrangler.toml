@@ -26,6 +26,8 @@ crons = ["0 0 * * *"]
 
 # Custom OpenAI-compatible LLM API (optional)
 # CUSTOM_LLM_URL = "http://129.226.89.157:20128/v1/chat/completions"
+# CUSTOM_LLM_API_KEY = "your-custom-llm-api-key"
+# CUSTOM_LLM_MODEL = "your-model-name"
 
 # Production environment
 [env.production]

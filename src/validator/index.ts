@@ -5,7 +5,7 @@
  * using AI analysis via OmniRoute endpoint
  */
 
-import type { CrawledPage, AIAnalysis, AIConfig } from '../types';
+import type { AIAnalysis, AIConfig, CrawledPage } from '../types';
 
 export interface ValidationResult {
   domain: string;

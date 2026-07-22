@@ -13,8 +13,8 @@
 
 import type { 
   AIAnalysis, 
-  CrawledPage, 
   ConfidenceScore, 
+  CrawledPage, 
   ScoringConfig 
 } from '../types';
 

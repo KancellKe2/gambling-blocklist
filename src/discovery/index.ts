@@ -15,7 +15,7 @@
  * - Recursive discovery
  */
 
-import type { Domain, DiscoverySource } from '../types';
+import type { DiscoverySource, Domain } from '../types';
 
 export interface DiscoveryResult {
   domains: Domain[];

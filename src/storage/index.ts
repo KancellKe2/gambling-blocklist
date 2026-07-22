@@ -5,7 +5,7 @@
  * for storing discovered domains, analysis results, and blocklists
  */
 
-import type { Domain, AIAnalysis, Blocklist } from '../types';
+import type { AIAnalysis, Blocklist, Domain } from '../types';
 
 export interface StorageConfig {
   kvNamespace: string;

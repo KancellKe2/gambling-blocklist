@@ -5,7 +5,7 @@
  * for automated gambling domain discovery and blocklist updates
  */
 
-import type { ExecutionContext } from '@cloudflare/workers-types';
+import type { ExecutionContext, KVNamespace, R2Bucket } from '@cloudflare/workers-types';
 import { DiscoveryManager } from '../discovery';
 import { Crawler } from '../crawler';
 import { Validator } from '../validator';
@@ -14,8 +14,8 @@ import { Storage } from '../storage';
 import { Publisher } from '../publisher';
 
 export interface CronEnv {
-  BLOCKLIST_KV: any;
-  R2_BUCKET: any;
+  BLOCKLIST_KV: KVNamespace;
+  R2_BUCKET: R2Bucket;
   ASSETS?: { fetch: typeof fetch };
   ENVIRONMENT: string;
   OMNIROUTE_API_KEY: string;
@@ -179,26 +179,31 @@ export class CronManager {
       console.log('Phase 7: Publishing blocklist...');
       const formats = publisher.generateFormats(blocklist);
       
-      // Store each format
-      await this.env[this.env.KV_NAMESPACE]?.put('blocklist:adguard', formats.adguard);
-      await this.env[this.env.KV_NAMESPACE]?.put('blocklist:hosts', formats.hosts);
-      await this.env[this.env.KV_NAMESPACE]?.put('blocklist:dnsmasq', formats.dnsmasq);
-      await this.env[this.env.KV_NAMESPACE]?.put('blocklist:plain', formats.plainDomains);
-      await this.env[this.env.KV_NAMESPACE]?.put('blocklist:abp', formats.abp);
+      // Store each format in KV
+      const kv = this.env.BLOCKLIST_KV;
+      if (kv) {
+        await kv.put('blocklist:adguard', formats.adguard);
+        await kv.put('blocklist:hosts', formats.hosts);
+        await kv.put('blocklist:dnsmasq', formats.dnsmasq);
+        await kv.put('blocklist:plain', formats.plainDomains);
+        await kv.put('blocklist:abp', formats.abp);
+      }
 
       const duration = Date.now() - startTime;
       console.log(`Cron job completed in ${duration}ms`);
 
       // Store run statistics
-      await this.env[this.env.KV_NAMESPACE]?.put('cron:lastRun', JSON.stringify({
-        timestamp: new Date().toISOString(),
-        duration,
-        domainsDiscovered: allDomains.length,
-        domainsCrawled: crawlResults.stats.success,
-        domainsValidated: validatedDomains.length,
-        domainsScored: scoredDomains.length,
-        blocklistSize: blocklist.domains.length,
-      }));
+      if (kv) {
+        await kv.put('cron:lastRun', JSON.stringify({
+          timestamp: new Date().toISOString(),
+          duration,
+          domainsDiscovered: allDomains.length,
+          domainsCrawled: crawlResults.stats.success,
+          domainsValidated: validatedDomains.length,
+          domainsScored: scoredDomains.length,
+          blocklistSize: blocklist.domains.length,
+        }));
+      }
 
     } catch (error) {
       console.error('Cron job failed:', error);

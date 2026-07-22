@@ -20,7 +20,7 @@
  * - Screenshot (optional)
  */
 
-import type { Domain, CrawledPage, CrawlerConfig } from '../types';
+import type { CrawledPage, CrawlerConfig, Domain } from '../types';
 import { extractDomain } from '../utils';
 
 export interface CrawlResult {

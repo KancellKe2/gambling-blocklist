@@ -37,5 +37,5 @@
     "no-duplicate-imports": "error",
     "sort-imports": "off"
   },
-  "ignorePatterns": ["node_modules/", "dist/", "*.js", "*.d.ts"]
+  "ignorePatterns": ["node_modules/", "dist/", "*.js", "*.d.ts", "examples/"]
 }

@@ -50,6 +50,10 @@ export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export async function rateLimit(delayMs: number): Promise<void> {
+  await sleep(delayMs);
+}
+
 export function extractDomain(url: string): string {
   try {
     const urlObj = new URL(url);

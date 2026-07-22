@@ -1,6 +1,6 @@
 {
   "name": "gambling-blocklist",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Automated system for searching, validating, scoring, and generating gambling domain blocklists",
   "type": "module",
   "main": "dist/index.js",

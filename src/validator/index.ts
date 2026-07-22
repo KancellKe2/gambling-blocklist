@@ -1,11 +1,261 @@
 /**
+ * False Positive Filter Module
+ * 
+ * Filters out non-gambling domains that might be incorrectly flagged:
+ * - News articles
+ * - Wikipedia
+ * - Forums
+ * - Legal websites
+ * - Research sites
+ * - Blogs
+ * - Media
+ * - GitHub
+ * - StackOverflow
+ * - YouTube
+ * - Educational sites
+ */
+
+import type { AIAnalysis, AIConfig, CrawledPage } from '../types';
+
+export interface FilterResult {
+  isFalsePositive: boolean;
+  reason: string;
+  category: string;
+}
+
+export interface FilterConfig {
+  enabledDomains: string[];
+  blockedPatterns: string[];
+  contentPatterns: string[];
+}
+
+// Known false positive domains
+const FALSE_POSITIVE_DOMAINS = [
+  // News and media
+  'news', 'media', 'press', 'journal', 'tribune', 'times', 'post',
+  'cnn', 'bbc', 'reuters', 'ap', 'nytimes', 'washingtonpost',
+  
+  // Wikipedia and educational
+  'wikipedia', 'wiki', 'edu', 'academic', 'scholar', 'research',
+  'university', 'college', 'school', 'learning', 'course',
+  
+  // Forums and discussion
+  'forum', 'community', 'discussion', 'reddit', 'quora', 'stackexchange',
+  'stackoverflow', 'github', 'gitlab', 'bitbucket',
+  
+  // Legal and government
+  'gov', 'legal', 'law', 'court', 'justice', 'regulation',
+  
+  // Technology and development
+  'developer', 'docs', 'documentation', 'api', 'sdk', 'library',
+  'npm', 'pypi', 'crates', 'maven',
+  
+  // Video and streaming
+  'youtube', 'vimeo', 'dailymotion', 'twitch', 'streaming',
+  
+  // Social media
+  'facebook', 'twitter', 'instagram', 'linkedin', 'tiktok',
+  
+  // E-commerce (non-gambling)
+  'shop', 'store', 'market', 'amazon', 'ebay', 'etsy',
+];
+
+// Content patterns that indicate false positives
+const FALSE_POSITIVE_CONTENT_PATTERNS = [
+  // News and articles
+  /\b(breaking news|latest news|news article|press release|news report)\b/i,
+  /\b(published|published on|author|byline|editorial)\b/i,
+  
+  // Wikipedia
+  /\b(wikipedia|from the free encyclopedia|article on|edit|history|talk)\b/i,
+  
+  // Forums
+  /\b(forum post|discussion thread|reply|comment|thread|topic)\b/i,
+  
+  // Legal
+  /\b(terms of service|privacy policy|legal notice|copyright|trademark)\b/i,
+  /\b(government|official|regulatory|compliance|jurisdiction)\b/i,
+  
+  // Educational
+  /\b(course|curriculum|syllabus|lecture|professor|student)\b/i,
+  /\b(research paper|study|analysis|journal|publication)\b/i,
+  
+  // Technology
+  /\b(documentation|api reference|code example|tutorial|guide)\b/i,
+  /\b(install|setup|configuration|getting started)\b/i,
+  
+  // Non-gambling commercial
+  /\b(product|service|pricing|subscription|plan|feature)\b/i,
+  /\b(buy|purchase|order|cart|checkout|payment)\b/i,
+];
+
+export class FalsePositiveFilter {
+  private config: FilterConfig;
+
+  constructor(config: Partial<FilterConfig> = {}) {
+    this.config = {
+      enabledDomains: config.enabledDomains || [],
+      blockedPatterns: config.blockedPatterns || FALSE_POSITIVE_DOMAINS,
+      contentPatterns: config.contentPatterns || FALSE_POSITIVE_CONTENT_PATTERNS.map(p => p.source),
+    };
+  }
+
+  filter(page: CrawledPage): FilterResult {
+    // Check domain-based false positives
+    const domainResult = this.checkDomainFalsePositive(page.domain);
+    if (domainResult.isFalsePositive) {
+      return domainResult;
+    }
+
+    // Check content-based false positives
+    const contentResult = this.checkContentFalsePositive(page);
+    if (contentResult.isFalsePositive) {
+      return contentResult;
+    }
+
+    // Check URL-based false positives
+    const urlResult = this.checkUrlFalsePositive(page.url);
+    if (urlResult.isFalsePositive) {
+      return urlResult;
+    }
+
+    return {
+      isFalsePositive: false,
+      reason: '',
+      category: '',
+    };
+  }
+
+  private checkDomainFalsePositive(domain: string): FilterResult {
+    const lowerDomain = domain.toLowerCase();
+    
+    for (const pattern of this.config.blockedPatterns) {
+      if (lowerDomain.includes(pattern.toLowerCase())) {
+        return {
+          isFalsePositive: true,
+          reason: `Domain contains false positive pattern: ${pattern}`,
+          category: 'domain-pattern',
+        };
+      }
+    }
+
+    // Check for specific TLDs that are often false positives
+    const falsePositiveTlds = ['.edu', '.gov', '.org', '.ac', '.academic'];
+    for (const tld of falsePositiveTlds) {
+      if (lowerDomain.endsWith(tld)) {
+        return {
+          isFalsePositive: true,
+          reason: `Domain has false positive TLD: ${tld}`,
+          category: 'tld',
+        };
+      }
+    }
+
+    return {
+      isFalsePositive: false,
+      reason: '',
+      category: '',
+    };
+  }
+
+  private checkContentFalsePositive(page: CrawledPage): FilterResult {
+    const content = `${page.title} ${page.body} ${Object.values(page.meta).join(' ')}`.toLowerCase();
+    
+    for (const patternStr of this.config.contentPatterns) {
+      try {
+        const pattern = new RegExp(patternStr, 'i');
+        if (pattern.test(content)) {
+          return {
+            isFalsePositive: true,
+            reason: `Content matches false positive pattern: ${patternStr}`,
+            category: 'content-pattern',
+          };
+        }
+      } catch {
+        // Skip invalid regex patterns
+      }
+    }
+
+    // Check for high text-to-link ratio (indicative of articles/news)
+    const linkCount = page.outgoingLinks.length + page.internalLinks.length;
+    const textLength = page.body.length;
+    if (linkCount > 0 && textLength / linkCount > 1000) {
+      return {
+        isFalsePositive: true,
+        reason: 'High text-to-link ratio indicates article/news content',
+        category: 'content-ratio',
+      };
+    }
+
+    return {
+      isFalsePositive: false,
+      reason: '',
+      category: '',
+    };
+  }
+
+  private checkUrlFalsePositive(url: string): FilterResult {
+    const lowerUrl = url.toLowerCase();
+    
+    // Check for common false positive URL patterns
+    const falsePositiveUrlPatterns = [
+      '/wiki/', '/article/', '/news/', '/blog/', '/post/',
+      '/forum/', '/discussion/', '/thread/', '/topic/',
+      '/docs/', '/documentation/', '/api/', '/sdk/',
+      '/course/', '/lecture/', '/tutorial/', '/guide/',
+      '/research/', '/paper/', '/study/', '/analysis/',
+      '/legal/', '/terms/', '/privacy/', '/policy/',
+      '/about/', '/contact/', '/support/', '/help/',
+    ];
+
+    for (const pattern of falsePositiveUrlPatterns) {
+      if (lowerUrl.includes(pattern)) {
+        return {
+          isFalsePositive: true,
+          reason: `URL contains false positive pattern: ${pattern}`,
+          category: 'url-pattern',
+        };
+      }
+    }
+
+    return {
+      isFalsePositive: false,
+      reason: '',
+      category: '',
+    };
+  }
+
+  // Add custom patterns
+  addBlockedDomain(pattern: string): void {
+    this.config.blockedPatterns.push(pattern);
+  }
+
+  addContentPattern(pattern: string): void {
+    this.config.contentPatterns.push(pattern);
+  }
+
+  // Remove patterns
+  removeBlockedDomain(pattern: string): void {
+    this.config.blockedPatterns = this.config.blockedPatterns.filter(p => p !== pattern);
+  }
+
+  removeContentPattern(pattern: string): void {
+    this.config.contentPatterns = this.config.contentPatterns.filter(p => p !== pattern);
+  }
+}
+
+export function createFalsePositiveFilter(
+  config?: Partial<FilterConfig>
+): FalsePositiveFilter {
+  return new FalsePositiveFilter(config);
+}
+
+/**
  * Validator Module
  * 
  * Validates whether a website is gambling-related
  * using AI analysis via OmniRoute endpoint
  */
-
-import type { AIAnalysis, AIConfig, CrawledPage } from '../types';
 
 export interface ValidationResult {
   domain: string;
@@ -16,6 +266,7 @@ export interface ValidationResult {
 
 export class Validator {
   private config: AIConfig;
+  private falsePositiveFilter: FalsePositiveFilter;
 
   constructor(config: Partial<AIConfig> = {}) {
     this.config = {
@@ -26,9 +277,29 @@ export class Validator {
       temperature: config.temperature || 0.3,
       timeout: config.timeout || 30000,
     };
+    this.falsePositiveFilter = new FalsePositiveFilter();
   }
 
   async validate(page: CrawledPage): Promise<ValidationResult> {
+    // First, check for false positives
+    const filterResult = this.falsePositiveFilter.filter(page);
+    if (filterResult.isFalsePositive) {
+      return {
+        domain: page.domain,
+        url: page.url,
+        analysis: {
+          isGambling: false,
+          confidence: 0,
+          reason: `False positive filtered: ${filterResult.reason}`,
+          language: page.language,
+          categories: [],
+          risk: 'low',
+          analyzedAt: new Date(),
+        },
+        timestamp: new Date(),
+      };
+    }
+
     const analysis = await this.analyzeWithAI(page);
     
     return {

@@ -85,19 +85,92 @@ npm run format
 
 ## Deployment
 
-1. Set up Cloudflare Workers:
+### Step-by-Step Deployment Guide
+
+1. **Clone and install dependencies:**
 ```bash
+git clone https://github.com/KancellKe2/gambling-blocklist.git
+cd gambling-blocklist
+npm install
+```
+
+2. **Set up Cloudflare Workers:**
+```bash
+# Login to Cloudflare
 npx wrangler login
+
+# Create KV namespace for blocklist storage
 npx wrangler kv:namespace create BLOCKLIST_KV
-npx wrangler r2 bucket create gambling-blocklist-data
+
+# Note the ID from the output and update wrangler.jsonc
 ```
 
-2. Update wrangler.jsonc with your namespace IDs
-
-3. Deploy:
+3. **Configure environment variables:**
 ```bash
-npm run deploy
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env with your values:
+# - OMNIROUTE_API_KEY: Your OmniRoute API key
+# - OMNIROUTE_ENDPOINT: Your OmniRoute endpoint URL
+# - FIRECRAWL_API_KEY: Optional, for enhanced crawling
 ```
+
+4. **Update wrangler.jsonc:**
+```jsonc
+{
+  "kv_namespaces": [
+    {
+      "binding": "BLOCKLIST_KV",
+      "id": "YOUR_KV_NAMESPACE_ID_HERE",  // Replace with actual ID
+      "preview_id": "YOUR_PREVIEW_KV_ID"
+    }
+  ]
+}
+```
+
+5. **Deploy to Cloudflare:**
+```bash
+# Build and deploy
+npm run deploy
+
+# Or deploy with wrangler directly
+npx wrangler deploy
+```
+
+6. **Set up cron schedule:**
+The cron schedule is configured in `wrangler.jsonc`:
+```jsonc
+{
+  "triggers": [
+    {
+      "cron": "0 */6 * * *"  // Every 6 hours
+    }
+  ]
+}
+```
+
+### Manual Update
+
+To trigger a manual update:
+```bash
+# Via API
+curl -X POST https://your-worker.dev/api/update
+
+# Or via wrangler
+npx wrangler tail  # View logs
+```
+
+### Environment Variables Reference
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OMNIROUTE_API_KEY` | Yes | API key for AI analysis |
+| `OMNIROUTE_ENDPOINT` | Yes | OmniRoute API endpoint URL |
+| `FIRECRAWL_API_KEY` | No | Firecrawl API key for enhanced crawling |
+| `FIRECRAWL_ENDPOINT` | No | Firecrawl API endpoint |
+| `BLOCKLIST_KV` | Yes | Cloudflare KV namespace binding |
+| `R2_BUCKET` | No | Cloudflare R2 bucket for extended storage |
 
 ## Configuration
 
@@ -139,6 +212,31 @@ The system generates blocklists in the following formats:
 5. **ABP**: Adblock Plus format
 6. **RPZ**: Response Policy Zone (if enabled)
 
+### Using with AdGuard Home
+
+1. **Add blocklist URL to AdGuard Home:**
+   - Go to Settings → DNS Blocklists
+   - Click "Add blocklist"
+   - Enter URL: `https://your-worker.dev/api/blocklist/adguard`
+
+2. **Or download and use locally:**
+```bash
+# Download the blocklist
+curl -o gambling-blocklist.txt https://your-worker.dev/api/blocklist/adguard
+
+# Import in AdGuard Home UI
+```
+
+3. **Using with dnsmasq:**
+```bash
+# Download dnsmasq format
+curl -o gambling.conf https://your-worker.dev/api/blocklist/dnsmasq
+
+# Add to dnsmasq configuration
+# Add include path to /etc/dnsmasq.conf:
+# conf-file=/path/to/gambling.conf
+```
+
 ## How It Works
 
 1. **Discovery**: System finds potential gambling domains from various sources
@@ -171,6 +269,54 @@ This project is for personal network protection only. It should not be used for:
 
 The system respects robots.txt and implements rate limiting to avoid overloading servers.
 
+## Troubleshooting
+
+### Common Issues
+
+1. **KV Namespace Not Found**
+   - Ensure you've created the KV namespace with `wrangler kv:namespace create BLOCKLIST_KV`
+   - Update the ID in `wrangler.jsonc`
+
+2. **AI Analysis Failing**
+   - Check that `OMNIROUTE_API_KEY` and `OMNIROUTE_ENDPOINT` are set correctly
+   - Verify your OmniRoute account has sufficient quota
+
+3. **Cron Not Running**
+   - Check Cloudflare Workers dashboard for cron triggers
+   - Verify the cron schedule in `wrangler.jsonc`
+
+4. **Rate Limiting Issues**
+   - The system includes built-in rate limiting
+   - Check logs for rate limit errors
+   - Adjust `rateLimitDelay` in configuration
+
+### Viewing Logs
+
+```bash
+# View real-time logs
+npx wrangler tail
+
+# Or check in Cloudflare dashboard
+```
+
+### Testing Locally
+
+```bash
+# Run tests
+npm test
+
+# Run linting
+npm run lint
+
+# Build project
+npm run build
+```
+
 ## Support
 
-For issues and feature requests, please create a GitHub issue.
+For issues and feature requests, please create a GitHub issue at:
+https://github.com/KancellKe2/gambling-blocklist/issues
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

@@ -10,7 +10,7 @@
   "kv_namespaces": [
     {
       "binding": "BLOCKLIST_KV",
-      "id": "YOUR_KV_NAMESPACE_ID"
+      "preview_id": "YOUR_KV_NAMESPACE_ID"
     }
   ],
   "r2_buckets": [
@@ -23,8 +23,7 @@
     "production": {
       "kv_namespaces": [
         {
-          "binding": "BLOCKLIST_KV",
-          "id": "YOUR_PRODUCTION_KV_NAMESPACE_ID"
+          "binding": "BLOCKLIST_KV"
         }
       ],
       "r2_buckets": [

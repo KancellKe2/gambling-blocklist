@@ -1,0 +1,66 @@
+{
+  // Example Wrangler Configuration
+  // Copy this file to wrangler.jsonc and update the values
+  
+  "name": "gambling-blocklist",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-08-21",
+  "compatibility_flags": ["nodejs_compat"],
+  
+  // Static assets (optional)
+  "assets": {
+    "directory": "public",
+    "binding": "ASSETS"
+  },
+  
+  // KV Namespaces for blocklist storage
+  "kv_namespaces": [
+    {
+      "binding": "BLOCKLIST_KV",
+      "id": "YOUR_KV_NAMESPACE_ID_HERE",
+      "preview_id": "YOUR_PREVIEW_KV_NAMESPACE_ID_HERE"
+    }
+  ],
+  
+  // R2 Buckets for extended storage (optional)
+  "r2_buckets": [
+    {
+      "binding": "R2_BUCKET",
+      "bucket_name": "gambling-blocklist-data"
+    }
+  ],
+  
+  // Production environment overrides
+  "env": {
+    "production": {
+      "kv_namespaces": [
+        {
+          "binding": "BLOCKLIST_KV",
+          "id": "YOUR_PRODUCTION_KV_NAMESPACE_ID_HERE"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "R2_BUCKET",
+          "bucket_name": "gambling-blocklist-production"
+        }
+      ]
+    }
+  },
+  
+  // Cron triggers for scheduled updates
+  "triggers": {
+    "crons": ["0 */6 * * *"]  // Every 6 hours
+  },
+  
+  // Environment variables
+  "vars": {
+    "ENVIRONMENT": "production"
+  },
+  
+  // Build configuration (optional)
+  "build": {
+    "command": "npm run build",
+    "watch_dir": "src"
+  }
+}
